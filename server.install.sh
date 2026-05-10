@@ -22,7 +22,10 @@ mkdir -p \
   .volumes/outline/postgres \
   .volumes/outline/redis \
   .volumes/kaneo/postgres \
+  .volumes/seafile/mysql \
+  .volumes/seafile/data \
   .volumes/traefik/letsencrypt \
+  .volumes/zerobyte/data \
   .volumes/authentik/postgresql \
   .volumes/authentik/data \
   .volumes/authentik/custom-templates
@@ -74,3 +77,5 @@ docker compose -f docker-compose.gitlab.yml up -d
 docker compose -f docker-compose.outline.yml up -d
 docker compose -f docker-compose.kaneo.yml up -d
 docker compose -f docker-compose.homarr.yml up -d
+docker compose -f docker-compose.seafile.yml up -d
+docker compose -f docker-compose.zerobyte.yml up -d

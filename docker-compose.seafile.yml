@@ -1,0 +1,64 @@
+services:
+  seafile-mysql:
+    image: mariadb:10.11
+    container_name: seafile-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${SEAFILE_MYSQL_ROOT_PASSWORD}
+      MYSQL_LOG_CONSOLE: "true"
+      MARIADB_AUTO_UPGRADE: "1"
+    volumes:
+      - ./.volumes/seafile/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - sdlc-net
+
+  seafile-memcached:
+    image: memcached:1.6.29
+    container_name: seafile-memcached
+    restart: unless-stopped
+    entrypoint: memcached -m 256
+    networks:
+      - sdlc-net
+
+  seafile:
+    image: seafileltd/seafile-mc:11.0-latest
+    container_name: seafile
+    restart: unless-stopped
+    depends_on:
+      seafile-mysql:
+        condition: service_healthy
+      seafile-memcached:
+        condition: service_started
+    environment:
+      DB_HOST: seafile-mysql
+      DB_PORT: "3306"
+      DB_ROOT_PASSWD: ${SEAFILE_MYSQL_ROOT_PASSWORD}
+      TIME_ZONE: UTC
+      SEAFILE_ADMIN_EMAIL: ${SEAFILE_ADMIN_EMAIL}
+      SEAFILE_ADMIN_PASSWORD: ${SEAFILE_ADMIN_PASSWORD}
+      SEAFILE_SERVER_HOSTNAME: ${SEAFILE_DOMAIN}
+      SEAFILE_SERVER_LETSENCRYPT: "false"
+      FORCE_HTTPS_IN_CONF: "true"
+    volumes:
+      - ./.volumes/seafile/data:/shared
+      - ./conf/seafile/seahub_settings.py:/shared/seafile/conf/seahub_settings.py:ro
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: sdlc-net
+      traefik.http.routers.seafile.rule: Host(`${SEAFILE_DOMAIN}`)
+      traefik.http.routers.seafile.entrypoints: websecure
+      traefik.http.routers.seafile.tls: "true"
+      traefik.http.routers.seafile.tls.certresolver: letsencrypt
+      traefik.http.services.seafile.loadbalancer.server.port: "80"
+    networks:
+      - sdlc-net
+
+networks:
+  sdlc-net:
+    external: true

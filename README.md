@@ -9,12 +9,16 @@ Traefik (HTTPS, Let's Encrypt)
   +--> GitLab
   +--> Outline
   +--> Kaneo
+  +--> Seafile
+  +--> Zerobyte
 
 authentik
   +--> OIDC for GitLab
   +--> OIDC for Outline
   +--> OIDC for Kaneo
   +--> OIDC for Homarr
+  +--> OAuth/OIDC for Seafile
+  +--> OIDC for Zerobyte
 
 Data:
 authentik -> PostgreSQL
@@ -22,6 +26,8 @@ Outline   -> PostgreSQL + Redis
 Kaneo     -> PostgreSQL
 GitLab    -> internal storage
 Homarr    -> appdata
+Seafile   -> MariaDB + data
+Zerobyte  -> appdata + backup repos
 ```
 
 ## Сервисы
@@ -34,6 +40,8 @@ Homarr    -> appdata
 | `GitLab`    | репозитории, CI/CD, review apps   | `GITLAB_URL`    |
 | `Outline`   | база знаний / документация        | `OUTLINE_URL`   |
 | `Kaneo`     | задачи и доски                    | `KANEO_URL`     |
+| `Seafile`   | файловое облако и синхронизация   | `SEAFILE_URL`   |
+| `Zerobyte`  | централизованные backup jobs      | `ZEROBYTE_URL`  |
 
 ## Пример запуска
 
@@ -93,6 +101,18 @@ cp .env.example .env
 | `HOMARR_SECRET_ENCRYPTION_KEY`  | `64-char-hex`                   | secret Homarr                              | `openssl rand -hex 32`    |
 | `HOMARR_OIDC_CLIENT_ID`         | `homarr-oidc`                   | OIDC client id Homarr                      | -                         |
 | `HOMARR_OIDC_CLIENT_SECRET`     | `w8m3...`                       | OIDC client secret Homarr                  | `openssl rand -base64 32` |
+| `SEAFILE_DOMAIN`                | `seafile.example.com`           | домен Seafile                              | -                         |
+| `SEAFILE_URL`                   | `https://seafile.example.com`   | URL Seafile                                | -                         |
+| `SEAFILE_ADMIN_EMAIL`           | `admin@example.com`             | admin email Seafile                        | -                         |
+| `SEAFILE_ADMIN_PASSWORD`        | `S3curePass!42`                 | admin password Seafile                     | `openssl rand -base64 24` |
+| `SEAFILE_MYSQL_ROOT_PASSWORD`   | `S3curePass!42`                 | root password MariaDB Seafile              | `openssl rand -base64 24` |
+| `SEAFILE_OIDC_CLIENT_ID`        | `seafile-oidc`                  | OIDC client id Seafile                     | -                         |
+| `SEAFILE_OIDC_CLIENT_SECRET`    | `w8m3...`                       | OIDC client secret Seafile                 | `openssl rand -base64 32` |
+| `ZEROBYTE_DOMAIN`               | `backup.example.com`            | домен Zerobyte                             | -                         |
+| `ZEROBYTE_URL`                  | `https://backup.example.com`    | URL Zerobyte                               | -                         |
+| `ZEROBYTE_APP_SECRET`           | `64-char-hex`                   | secret Zerobyte                            | `openssl rand -hex 32`    |
+| `ZEROBYTE_OIDC_CLIENT_ID`       | `zerobyte-oidc`                 | OIDC client id Zerobyte                    | -                         |
+| `ZEROBYTE_OIDC_CLIENT_SECRET`   | `w8m3...`                       | OIDC client secret Zerobyte                | `openssl rand -base64 32` |
 
 ## Инструкции по работе
 
@@ -100,7 +120,7 @@ cp .env.example .env
 
 | Что сделать                   | Пример                                                                                                                          |
 |-------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
-| создать DNS записи            | `example.com`, `traefik.example.com`, `authentik.example.com`, `gitlab.example.com`, `outline.example.com`, `kaneo.example.com` |
+| создать DNS записи            | `example.com`, `traefik.example.com`, `authentik.example.com`, `gitlab.example.com`, `outline.example.com`, `kaneo.example.com`, `seafile.example.com`, `backup.example.com` |
 | скопировать шаблон env        | `cp .env.example .env`                                                                                                          |
 | заполнить `.env`              | подставить свои домены, пароли, secrets                                                                                         |
 | отправить на сервер по ключу  | `./ssh.copy.sh`                                                                                                                 |
@@ -134,6 +154,8 @@ cp .env.example .env
 | `Outline`  | `outline-oidc` | `OIDC_SHARED_CLIENT_SECRET` | `OUTLINE_URL/auth/oidc.callback`                |
 | `Kaneo`    | `kaneo-oidc`   | `OIDC_SHARED_CLIENT_SECRET` | `KANEO_URL/api/auth/oauth2/callback/custom`     |
 | `Homarr`   | `homarr-oidc`  | `OIDC_SHARED_CLIENT_SECRET` | `HOMARR_URL/api/auth/callback/oidc`             |
+| `Seafile`  | `seafile-oidc` | `SEAFILE_OIDC_CLIENT_SECRET` | `SEAFILE_URL/oauth/callback/`                   |
+| `Zerobyte` | `zerobyte-oidc` | `ZEROBYTE_OIDC_CLIENT_SECRET` | взять callback URL из UI Zerobyte при настройке |
 
 ### 4. GitLab
 
@@ -167,3 +189,20 @@ cp .env.example .env
 | открыть    | зайти в `HOMARR_URL`                             |
 | вход       | использовать вход через `authentik`              |
 | назначение | сделать домашнюю страницу со ссылками на сервисы |
+
+### 8. Seafile
+
+| Действие           | Что сделать                                                        |
+|--------------------|--------------------------------------------------------------------|
+| открыть            | зайти в `SEAFILE_URL`                                               |
+| локальный admin    | логин `SEAFILE_ADMIN_EMAIL`, пароль `SEAFILE_ADMIN_PASSWORD`        |
+
+### 9. Zerobyte
+
+| Действие        | Что сделать                                                               |
+|-----------------|---------------------------------------------------------------------------|
+| открыть         | зайти в `ZEROBYTE_URL`                                                    |
+| initial setup   | создать локальный admin при первом входе                                  |
+| данные          | appdata лежит в `./.volumes/zerobyte/data`                                |
+| источники backup| в контейнер уже примонтирован `./.volumes` как `/backup-targets` read-only |
+| OIDC            | после первого входа подключить `authentik` через admin UI Zerobyte        |

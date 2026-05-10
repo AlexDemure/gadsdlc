@@ -1,0 +1,68 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab
+    hostname: ${GITLAB_DOMAIN}
+    restart: unless-stopped
+    shm_size: "256m"
+    ports:
+      - "2222:22"
+    environment:
+      GITLAB_ROOT_PASSWORD: ${GITLAB_ROOT_PASSWORD}
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url '${GITLAB_URL}'
+        letsencrypt['enable'] = false
+        nginx['listen_port'] = 80
+        nginx['listen_https'] = false
+        gitlab_rails['initial_root_password'] = ENV['GITLAB_ROOT_PASSWORD']
+        gitlab_rails['gitlab_shell_ssh_port'] = 2222
+        gitlab_rails['omniauth_enabled'] = true
+        gitlab_rails['omniauth_allow_single_sign_on'] = ['openid_connect']
+        gitlab_rails['omniauth_block_auto_created_users'] = false
+        gitlab_rails['omniauth_auto_link_user'] = ['openid_connect']
+        gitlab_rails['omniauth_providers'] = [
+          {
+            name: 'openid_connect',
+            label: 'authentik',
+            args: {
+              name: 'openid_connect',
+              scope: ['openid', 'profile', 'email'],
+              response_type: 'code',
+              issuer: '${AUTHENTIK_URL}/application/o/gitlab/',
+              discovery: false,
+              client_auth_method: 'query',
+              uid_field: 'preferred_username',
+              send_scope_to_token_endpoint: false,
+              pkce: true,
+              gitlab_username_claim: 'preferred_username',
+              client_options: {
+                identifier: '${GITLAB_OMNIAUTH_CLIENT_ID}',
+                secret: '${GITLAB_OMNIAUTH_CLIENT_SECRET}',
+                redirect_uri: '${GITLAB_URL}/users/auth/openid_connect/callback',
+                authorization_endpoint: '${AUTHENTIK_URL}/application/o/authorize/',
+                token_endpoint: '${AUTHENTIK_URL}/application/o/token/',
+                userinfo_endpoint: '${AUTHENTIK_URL}/application/o/userinfo/',
+                jwks_uri: '${AUTHENTIK_URL}/application/o/gitlab/jwks/',
+                end_session_endpoint: '${AUTHENTIK_URL}/application/o/gitlab/end-session/'
+              }
+            }
+          }
+        ]
+    volumes:
+      - ./.volumes/gitlab/config:/etc/gitlab
+      - ./.volumes/gitlab/logs:/var/log/gitlab
+      - ./.volumes/gitlab/data:/var/opt/gitlab
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: sdlc-net
+      traefik.http.routers.gitlab.rule: Host(`${GITLAB_DOMAIN}`)
+      traefik.http.routers.gitlab.entrypoints: websecure
+      traefik.http.routers.gitlab.tls: "true"
+      traefik.http.routers.gitlab.tls.certresolver: letsencrypt
+      traefik.http.services.gitlab.loadbalancer.server.port: "80"
+    networks:
+      - sdlc-net
+
+networks:
+  sdlc-net:
+    external: true

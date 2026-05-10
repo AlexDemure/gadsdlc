@@ -1,0 +1,80 @@
+services:
+  kaneo-postgres:
+    image: postgres:16-alpine
+    container_name: kaneo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${KANEO_POSTGRES_DB}
+      POSTGRES_USER: ${KANEO_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${KANEO_POSTGRES_PASSWORD}
+    volumes:
+      - ./.volumes/kaneo/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KANEO_POSTGRES_USER} -d ${KANEO_POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sdlc-net
+
+  kaneo-api:
+    image: ghcr.io/usekaneo/api:latest
+    container_name: kaneo-api
+    restart: unless-stopped
+    environment:
+      KANEO_CLIENT_URL: ${KANEO_URL}
+      KANEO_API_URL: ${KANEO_API_URL}
+      DATABASE_URL: postgresql://${KANEO_POSTGRES_USER}:${KANEO_POSTGRES_PASSWORD}@kaneo-postgres:5432/${KANEO_POSTGRES_DB}
+      POSTGRES_DB: ${KANEO_POSTGRES_DB}
+      POSTGRES_USER: ${KANEO_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${KANEO_POSTGRES_PASSWORD}
+      AUTH_SECRET: ${KANEO_AUTH_SECRET}
+      DISABLE_REGISTRATION: "false"
+      DISABLE_PASSWORD_REGISTRATION: "true"
+      CUSTOM_OAUTH_CLIENT_ID: ${KANEO_OIDC_CLIENT_ID}
+      CUSTOM_OAUTH_CLIENT_SECRET: ${KANEO_OIDC_CLIENT_SECRET}
+      CUSTOM_OAUTH_DISCOVERY_URL: ${AUTHENTIK_URL}/application/o/kaneo/.well-known/openid-configuration
+      CUSTOM_OAUTH_AUTHORIZATION_URL: ${AUTHENTIK_URL}/application/o/authorize/
+      CUSTOM_OAUTH_TOKEN_URL: ${AUTHENTIK_URL}/application/o/token/
+      CUSTOM_OAUTH_USER_INFO_URL: ${AUTHENTIK_URL}/application/o/userinfo/
+      CUSTOM_OAUTH_SCOPES: openid,profile,email
+      CUSTOM_AUTH_PKCE: "true"
+    depends_on:
+      kaneo-postgres:
+        condition: service_healthy
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: sdlc-net
+      traefik.http.routers.kaneo-api.rule: Host(`${KANEO_DOMAIN}`) && PathPrefix(`/api`)
+      traefik.http.routers.kaneo-api.entrypoints: websecure
+      traefik.http.routers.kaneo-api.tls: "true"
+      traefik.http.routers.kaneo-api.tls.certresolver: letsencrypt
+      traefik.http.routers.kaneo-api.priority: "100"
+      traefik.http.services.kaneo-api.loadbalancer.server.port: "1337"
+    networks:
+      - sdlc-net
+
+  kaneo-web:
+    image: ghcr.io/usekaneo/web:latest
+    container_name: kaneo-web
+    restart: unless-stopped
+    environment:
+      KANEO_CLIENT_URL: ${KANEO_URL}
+      KANEO_API_URL: ${KANEO_API_URL}
+    depends_on:
+      - kaneo-api
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: sdlc-net
+      traefik.http.routers.kaneo-web.rule: Host(`${KANEO_DOMAIN}`)
+      traefik.http.routers.kaneo-web.entrypoints: websecure
+      traefik.http.routers.kaneo-web.tls: "true"
+      traefik.http.routers.kaneo-web.tls.certresolver: letsencrypt
+      traefik.http.routers.kaneo-web.priority: "10"
+      traefik.http.services.kaneo-web.loadbalancer.server.port: "5173"
+    networks:
+      - sdlc-net
+
+networks:
+  sdlc-net:
+    external: true

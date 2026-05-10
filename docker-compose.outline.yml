@@ -1,0 +1,78 @@
+services:
+  outline:
+    image: outlinewiki/outline:latest
+    container_name: outline
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      URL: ${OUTLINE_URL}
+      PORT: 3000
+      SECRET_KEY: ${OUTLINE_SECRET_KEY}
+      UTILS_SECRET: ${OUTLINE_UTILS_SECRET}
+      DATABASE_URL: postgres://${OUTLINE_POSTGRES_USER}:${OUTLINE_POSTGRES_PASSWORD}@outline-postgres:5432/${OUTLINE_POSTGRES_DB}
+      PGSSLMODE: disable
+      REDIS_URL: redis://outline-redis:6379
+      REDIS_COLLABORATION_URL: redis://outline-redis:6379
+      FILE_STORAGE: local
+      FILE_STORAGE_LOCAL_ROOT_DIR: /var/lib/outline/data
+      FORCE_HTTPS: "true"
+      OIDC_CLIENT_ID: ${OUTLINE_OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${OUTLINE_OIDC_CLIENT_SECRET}
+      OIDC_AUTH_URI: ${AUTHENTIK_URL}/application/o/authorize/
+      OIDC_TOKEN_URI: ${AUTHENTIK_URL}/application/o/token/
+      OIDC_USERINFO_URI: ${AUTHENTIK_URL}/application/o/userinfo/
+      OIDC_LOGOUT_URI: ${AUTHENTIK_URL}/application/o/outline/end-session/
+      OIDC_USERNAME_CLAIM: preferred_username
+      OIDC_DISPLAY_NAME: authentik
+      OIDC_SCOPES: openid profile email
+    depends_on:
+      - outline-postgres
+      - outline-redis
+    volumes:
+      - ./.volumes/outline/storage:/var/lib/outline/data
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: sdlc-net
+      traefik.http.routers.outline.rule: Host(`${OUTLINE_DOMAIN}`)
+      traefik.http.routers.outline.entrypoints: websecure
+      traefik.http.routers.outline.tls: "true"
+      traefik.http.routers.outline.tls.certresolver: letsencrypt
+      traefik.http.services.outline.loadbalancer.server.port: "3000"
+    networks:
+      - sdlc-net
+
+  outline-postgres:
+    image: postgres:16
+    container_name: outline-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${OUTLINE_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${OUTLINE_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${OUTLINE_POSTGRES_DB}
+    volumes:
+      - ./.volumes/outline/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "${OUTLINE_POSTGRES_DB}", "-U", "${OUTLINE_POSTGRES_USER}"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - sdlc-net
+
+  outline-redis:
+    image: redis:7
+    container_name: outline-redis
+    restart: unless-stopped
+    volumes:
+      - ./.volumes/outline/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+    networks:
+      - sdlc-net
+
+networks:
+  sdlc-net:
+    external: true

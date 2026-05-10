@@ -1,0 +1,35 @@
+services:
+  homarr:
+    image: ghcr.io/homarr-labs/homarr:latest
+    container_name: homarr
+    restart: unless-stopped
+    environment:
+      BASE_URL: ${HOMARR_URL}
+      NEXTAUTH_URL: ${HOMARR_URL}
+      SECRET_ENCRYPTION_KEY: ${HOMARR_SECRET_ENCRYPTION_KEY}
+      AUTH_PROVIDERS: oidc
+      AUTH_OIDC_CLIENT_ID: ${HOMARR_OIDC_CLIENT_ID}
+      AUTH_OIDC_CLIENT_SECRET: ${HOMARR_OIDC_CLIENT_SECRET}
+      AUTH_OIDC_CLIENT_NAME: authentik
+      AUTH_OIDC_ISSUER: ${AUTHENTIK_URL}/application/o/homarr/
+      AUTH_OIDC_SCOPE_OVERWRITE: openid email profile groups
+      AUTH_OIDC_GROUPS_ATTRIBUTE: groups
+      AUTH_LOGOUT_REDIRECT_URL: ${AUTHENTIK_URL}/application/o/homarr/end-session/
+      AUTH_OIDC_AUTO_LOGIN: "true"
+    volumes:
+      - ./.volumes/homarr/appdata:/appdata
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: sdlc-net
+      traefik.http.routers.homarr.rule: Host(`${HOMARR_DOMAIN}`)
+      traefik.http.routers.homarr.entrypoints: websecure
+      traefik.http.routers.homarr.tls: "true"
+      traefik.http.routers.homarr.tls.certresolver: letsencrypt
+      traefik.http.services.homarr.loadbalancer.server.port: "7575"
+    networks:
+      - sdlc-net
+
+networks:
+  sdlc-net:
+    external: true

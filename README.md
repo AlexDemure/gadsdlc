@@ -67,6 +67,11 @@ cp .env.example .env
 | `REMOTE_DIR`                    | `~/sdlc`                        | директория на сервере                      | -                         |
 | `TRAEFIK_DOMAIN`                | `traefik.example.com`           | домен Traefik                              | -                         |
 | `TRAEFIK_URL`                   | `https://traefik.example.com`   | URL Traefik                                | -                         |
+| `TRAEFIK_COOKIE_DOMAIN`         | `example.com`                   | cookie domain для OIDC middleware Traefik  | -                         |
+| `TRAEFIK_OIDC_CLIENT_ID`        | `traefik-oidc`                  | OIDC client id Traefik                     | -                         |
+| `TRAEFIK_OIDC_CLIENT_SECRET`    | `w8m3...`                       | OIDC client secret Traefik                 | `openssl rand -base64 32` |
+| `TRAEFIK_OIDC_PROVIDER_URL`     | `https://auth.example.com/application/o/traefik/` | provider URL для plugin          | -                         |
+| `TRAEFIK_OIDC_PLUGIN_SECRET`    | `32-char-secret`                | secret для cookie/session plugin           | `openssl rand -hex 16`    |
 | `AUTHENTIK_DOMAIN`              | `authentik.example.com`         | домен authentik                            | -                         |
 | `AUTHENTIK_URL`                 | `https://authentik.example.com` | URL authentik                              | -                         |
 | `AUTHENTIK_POSTGRES_DB`         | `authentik`                     | БД authentik                               | -                         |

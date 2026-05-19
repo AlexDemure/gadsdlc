@@ -44,7 +44,7 @@ services:
       SEAFILE_ADMIN_PASSWORD: ${SEAFILE_ADMIN_PASSWORD}
       SEAFILE_SERVER_HOSTNAME: ${SEAFILE_DOMAIN}
       SEAFILE_SERVER_LETSENCRYPT: "false"
-      FORCE_HTTPS_IN_CONF: "true"
+      FORCE_HTTPS_IN_CONF: "false"
     volumes:
       - ./.volumes/seafile/data:/shared
       - ./conf/seafile/seahub_settings.py:/shared/seafile/conf/seahub_settings.py:ro

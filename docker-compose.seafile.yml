@@ -48,7 +48,7 @@ services:
       SEAFILE_URL: ${SEAFILE_URL}
       SEAFILE_OIDC_CLIENT_ID: ${SEAFILE_OIDC_CLIENT_ID}
       SEAFILE_OIDC_CLIENT_SECRET: ${SEAFILE_OIDC_CLIENT_SECRET}
-      FORCE_HTTPS_IN_CONF: "false"
+      FORCE_HTTPS_IN_CONF: "true"
     volumes:
       - ./.volumes/seafile/data:/shared
       - ./conf/seafile/seahub_settings.py:/shared/seafile/conf/seahub_settings.py:ro

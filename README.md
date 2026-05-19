@@ -85,7 +85,7 @@ cd .nginx
 | Что делают | Детали |
 |------------|--------|
 | HTTP -> HTTPS redirect | `listen 80` с `return 301` |
-| TLS | сертификаты и SSL-директивы подключаются отдельно |
+| TLS | сертификаты, `ssl` и `http2` подключаются отдельно |
 | Proxy headers | пробрасывают `Host`, `X-Forwarded-*`, `Upgrade` |
 
 ## GitLab

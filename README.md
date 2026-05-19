@@ -2,7 +2,7 @@
 Browser
   |
   v
-nginx (HTTPS, Let's Encrypt)
+nginx (HTTP)
   |
   +--> authentik
   +--> gitlab
@@ -25,13 +25,13 @@ authentik
 
 | Сервис      | Для чего нужен                    | Домен                               |
 |-------------|-----------------------------------|-------------------------------------|
-| `authentik` | единый вход и OIDC provider       | `https://authentik.dcu.aicareer.info` |
-| `GitLab`    | репозитории, CI/CD, review apps   | `https://gitlab.dcu.aicareer.info`    |
-| `Outline`   | база знаний / документация        | `https://outline.dcu.aicareer.info`   |
-| `Kaneo`     | задачи и доски                    | `https://kaneo.dcu.aicareer.info`     |
-| `Homarr`    | стартовая панель со ссылками      | `https://homarr.dcu.aicareer.info`    |
-| `Seafile`   | файловое облако и синхронизация   | `https://seafile.dcu.aicareer.info`   |
-| `Zerobyte`  | централизованные backup jobs      | `https://zerobyte.dcu.aicareer.info`  |
+| `authentik` | единый вход и OIDC provider       | `http://authentik.dcu.aicareer.info` |
+| `GitLab`    | репозитории, CI/CD, review apps   | `http://gitlab.dcu.aicareer.info`    |
+| `Outline`   | база знаний / документация        | `http://outline.dcu.aicareer.info`   |
+| `Kaneo`     | задачи и доски                    | `http://kaneo.dcu.aicareer.info`     |
+| `Homarr`    | стартовая панель со ссылками      | `http://homarr.dcu.aicareer.info`    |
+| `Seafile`   | файловое облако и синхронизация   | `http://seafile.dcu.aicareer.info`   |
+| `Zerobyte`  | централизованные backup jobs      | `http://zerobyte.dcu.aicareer.info`  |
 
 ## Запуск
 
@@ -53,16 +53,16 @@ cd .nginx
 
 | Переменная | Пример |
 |------------|--------|
-| `AUTHENTIK_URL` | `https://authentik.dcu.aicareer.info` |
+| `AUTHENTIK_URL` | `http://authentik.dcu.aicareer.info` |
 | `GITLAB_DOMAIN` | `gitlab.dcu.aicareer.info` |
-| `GITLAB_URL` | `https://gitlab.dcu.aicareer.info` |
-| `OUTLINE_URL` | `https://outline.dcu.aicareer.info` |
-| `KANEO_URL` | `https://kaneo.dcu.aicareer.info` |
-| `KANEO_API_URL` | `https://kaneo.dcu.aicareer.info/api` |
-| `HOMARR_URL` | `https://homarr.dcu.aicareer.info` |
+| `GITLAB_URL` | `http://gitlab.dcu.aicareer.info` |
+| `OUTLINE_URL` | `http://outline.dcu.aicareer.info` |
+| `KANEO_URL` | `http://kaneo.dcu.aicareer.info` |
+| `KANEO_API_URL` | `http://kaneo.dcu.aicareer.info/api` |
+| `HOMARR_URL` | `http://homarr.dcu.aicareer.info` |
 | `SEAFILE_DOMAIN` | `seafile.dcu.aicareer.info` |
-| `SEAFILE_URL` | `https://seafile.dcu.aicareer.info` |
-| `ZEROBYTE_URL` | `https://zerobyte.dcu.aicareer.info` |
+| `SEAFILE_URL` | `http://seafile.dcu.aicareer.info` |
+| `ZEROBYTE_URL` | `http://zerobyte.dcu.aicareer.info` |
 
 Домены должны совпадать с `nginx` конфигами из [`.nginx`](/home/alex/git/gadsdlc/.nginx).
 

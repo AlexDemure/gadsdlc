@@ -132,11 +132,4 @@ cd .nginx
 | `Seafile` | `seafile-oidc` | `SEAFILE_OIDC_CLIENT_SECRET` | `SEAFILE_URL/oauth/callback/` |
 | `Zerobyte` | настроить в UI | настроить в UI | взять callback URL из UI Zerobyte |
 
-Для `Seafile` не подменяй весь `seahub_settings.py`. Сначала подними контейнер один раз, потом допиши OIDC-блок:
-
-```bash
-bash conf/seafile/install.sh
-docker compose -f docker-compose.seafile.yml restart seafile
-```
-
-Шаблон OIDC лежит в [`conf/seafile/seahub_settings.oidc.py`](/home/alex/git/gadsdlc/conf/seafile/seahub_settings.oidc.py), а добавляется в сгенерированный файл внутри volume.
+Для `Seafile` OIDC-конфиг лежит в [`conf/seafile/seahub_settings.py`](/home/alex/git/gadsdlc/conf/seafile/seahub_settings.py) и монтируется в контейнер как `read-only`.

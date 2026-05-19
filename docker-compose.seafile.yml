@@ -51,6 +51,7 @@ services:
       FORCE_HTTPS_IN_CONF: "false"
     volumes:
       - ./.volumes/seafile/data:/shared
+      - ./conf/seafile/seahub_settings.py:/shared/seafile/conf/seahub_settings.py:ro
     ports:
       - "127.0.0.1:50080:80"
     networks:

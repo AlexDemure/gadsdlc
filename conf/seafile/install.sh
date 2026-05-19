@@ -4,6 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 TARGET=".volumes/seafile/data/seafile/conf/seahub_settings.py"
+PYC_TARGET=".volumes/seafile/data/seafile/conf/seahub_settings.pyc"
 SNIPPET="conf/seafile/seahub_settings.oidc.py"
 MARKER_BEGIN="# BEGIN DCU SEAFILE OIDC"
 MARKER_END="# END DCU SEAFILE OIDC"
@@ -30,5 +31,7 @@ awk -v begin="$MARKER_BEGIN" -v end="$MARKER_END" '
   cat "$SNIPPET"
   echo "$MARKER_END"
 } > "$TARGET"
+
+rm -f "$PYC_TARGET"
 
 echo "OIDC block synced to $TARGET"

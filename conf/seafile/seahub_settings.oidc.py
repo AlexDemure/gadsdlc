@@ -1,11 +1,17 @@
 import os
+from urllib.parse import urlparse
 
 
 SERVICE_URL = os.environ["SEAFILE_URL"]
 FILE_SERVER_ROOT = f"{os.environ['SEAFILE_URL']}/seafhttp"
+SEAFILE_HOST = urlparse(os.environ["SEAFILE_URL"]).hostname
+
+ALLOWED_HOSTS = [SEAFILE_HOST] if SEAFILE_HOST else []
 CSRF_TRUSTED_ORIGINS = [os.environ["SEAFILE_URL"]]
 CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = "Lax"
 
 ENABLE_OAUTH = True
 OAUTH_CREATE_UNKNOWN_USER = True

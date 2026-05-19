@@ -24,15 +24,12 @@ mkdir -p \
   .volumes/kaneo/postgres \
   .volumes/seafile/mysql \
   .volumes/seafile/data \
-  .volumes/traefik/letsencrypt \
   .volumes/zerobyte/data \
   .volumes/authentik/postgresql \
   .volumes/authentik/data \
   .volumes/authentik/custom-templates
 
 chown -R 1000:1000 .volumes/authentik/data .volumes/authentik/custom-templates
-touch .volumes/traefik/letsencrypt/acme.json
-chmod 600 .volumes/traefik/letsencrypt/acme.json
 
 if ! command -v docker >/dev/null 2>&1; then
   if command -v apt-get >/dev/null 2>&1; then
@@ -69,9 +66,8 @@ if ! command -v docker >/dev/null 2>&1; then
   fi
 fi
 
-docker network inspect sdlc-net >/dev/null 2>&1 || docker network create sdlc-net
+docker network inspect dcu-net >/dev/null 2>&1 || docker network create dcu-net
 
-docker compose -f docker-compose.traefik.yml up -d
 docker compose -f docker-compose.authentik.yml up -d
 docker compose -f docker-compose.gitlab.yml up -d
 docker compose -f docker-compose.outline.yml up -d

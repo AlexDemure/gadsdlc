@@ -20,4 +20,4 @@ rsync -av --delete \
   --exclude '.git' \
   -e "ssh -o StrictHostKeyChecking=no" \
   ./ "$SERVER_USER@$SERVER_HOST:$REMOTE_DIR/"
-ssh -o StrictHostKeyChecking=no "$SERVER_USER@$SERVER_HOST" "chmod +x $REMOTE_DIR/server.install.sh $REMOTE_DIR/ssh.copy.sh $REMOTE_DIR/sshpass.copy.sh"
+ssh -o StrictHostKeyChecking=no "$SERVER_USER@$SERVER_HOST" "chmod +x $REMOTE_DIR/server.install.sh $REMOTE_DIR/ssh.copy.sh $REMOTE_DIR/sshpass.copy.sh $REMOTE_DIR/.nginx/install.sh"

@@ -15,7 +15,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - sdlc-net
+      - dcu-net
 
   kaneo-api:
     image: ghcr.io/usekaneo/api:latest
@@ -42,17 +42,10 @@ services:
     depends_on:
       kaneo-postgres:
         condition: service_healthy
-    labels:
-      traefik.enable: "true"
-      traefik.docker.network: sdlc-net
-      traefik.http.routers.kaneo-api.rule: Host(`${KANEO_DOMAIN}`) && PathPrefix(`/api`)
-      traefik.http.routers.kaneo-api.entrypoints: websecure
-      traefik.http.routers.kaneo-api.tls: "true"
-      traefik.http.routers.kaneo-api.tls.certresolver: letsencrypt
-      traefik.http.routers.kaneo-api.priority: "100"
-      traefik.http.services.kaneo-api.loadbalancer.server.port: "1337"
+    ports:
+      - "127.0.0.1:51337:1337"
     networks:
-      - sdlc-net
+      - dcu-net
 
   kaneo-web:
     image: ghcr.io/usekaneo/web:latest
@@ -63,18 +56,11 @@ services:
       KANEO_API_URL: ${KANEO_API_URL}
     depends_on:
       - kaneo-api
-    labels:
-      traefik.enable: "true"
-      traefik.docker.network: sdlc-net
-      traefik.http.routers.kaneo-web.rule: Host(`${KANEO_DOMAIN}`)
-      traefik.http.routers.kaneo-web.entrypoints: websecure
-      traefik.http.routers.kaneo-web.tls: "true"
-      traefik.http.routers.kaneo-web.tls.certresolver: letsencrypt
-      traefik.http.routers.kaneo-web.priority: "10"
-      traefik.http.services.kaneo-web.loadbalancer.server.port: "5173"
+    ports:
+      - "127.0.0.1:55173:5173"
     networks:
-      - sdlc-net
+      - dcu-net
 
 networks:
-  sdlc-net:
+  dcu-net:
     external: true

@@ -12,17 +12,11 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ./.volumes/zerobyte/data:/var/lib/zerobyte
       - ./.volumes:/backup-targets:ro
-    labels:
-      traefik.enable: "true"
-      traefik.docker.network: sdlc-net
-      traefik.http.routers.zerobyte.rule: Host(`${ZEROBYTE_DOMAIN}`)
-      traefik.http.routers.zerobyte.entrypoints: websecure
-      traefik.http.routers.zerobyte.tls: "true"
-      traefik.http.routers.zerobyte.tls.certresolver: letsencrypt
-      traefik.http.services.zerobyte.loadbalancer.server.port: "4096"
+    ports:
+      - "127.0.0.1:54096:4096"
     networks:
-      - sdlc-net
+      - dcu-net
 
 networks:
-  sdlc-net:
+  dcu-net:
     external: true

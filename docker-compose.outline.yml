@@ -30,16 +30,10 @@ services:
       - outline-redis
     volumes:
       - ./.volumes/outline/storage:/var/lib/outline/data
-    labels:
-      traefik.enable: "true"
-      traefik.docker.network: sdlc-net
-      traefik.http.routers.outline.rule: Host(`${OUTLINE_DOMAIN}`)
-      traefik.http.routers.outline.entrypoints: websecure
-      traefik.http.routers.outline.tls: "true"
-      traefik.http.routers.outline.tls.certresolver: letsencrypt
-      traefik.http.services.outline.loadbalancer.server.port: "3000"
+    ports:
+      - "127.0.0.1:53000:3000"
     networks:
-      - sdlc-net
+      - dcu-net
 
   outline-postgres:
     image: postgres:16
@@ -57,7 +51,7 @@ services:
       timeout: 20s
       retries: 3
     networks:
-      - sdlc-net
+      - dcu-net
 
   outline-redis:
     image: redis:7
@@ -71,8 +65,8 @@ services:
       timeout: 30s
       retries: 3
     networks:
-      - sdlc-net
+      - dcu-net
 
 networks:
-  sdlc-net:
+  dcu-net:
     external: true

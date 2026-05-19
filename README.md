@@ -37,7 +37,6 @@ authentik
 
 ```bash
 cp .env.example .env
-./ssh.copy.sh
 ./server.install.sh
 ```
 
@@ -50,20 +49,20 @@ cd .nginx
 
 ## `.env`
 
-Основные переменные:
+Используемые переменные:
 
 | Переменная | Пример |
 |------------|--------|
-| `DOMAIN` | `dcu.aicareer.info` |
-| `LETSENCRYPT_EMAIL` | `ops@aicareer.info` |
-| `ADMIN_LOGIN` | `admin` |
-| `ADMIN_EMAIL` | `admin@aicareer.info` |
-| `ADMIN_PASSWORD` | `openssl rand -base64 24` |
-| `OIDC_SHARED_CLIENT_SECRET` | `openssl rand -base64 32` |
-| `SERVER_HOST` | `deploy.example.com` |
-| `SERVER_USER` | `deployer` |
-| `SERVER_PASSWORD` | `StrongPass!1` |
-| `REMOTE_DIR` | `~/dcu` |
+| `AUTHENTIK_URL` | `https://authentik.dcu.aicareer.info` |
+| `GITLAB_DOMAIN` | `gitlab.dcu.aicareer.info` |
+| `GITLAB_URL` | `https://gitlab.dcu.aicareer.info` |
+| `OUTLINE_URL` | `https://outline.dcu.aicareer.info` |
+| `KANEO_URL` | `https://kaneo.dcu.aicareer.info` |
+| `KANEO_API_URL` | `https://kaneo.dcu.aicareer.info/api` |
+| `HOMARR_URL` | `https://homarr.dcu.aicareer.info` |
+| `SEAFILE_DOMAIN` | `seafile.dcu.aicareer.info` |
+| `SEAFILE_URL` | `https://seafile.dcu.aicareer.info` |
+| `ZEROBYTE_URL` | `https://zerobyte.dcu.aicareer.info` |
 
 Домены должны совпадать с `nginx` конфигами из [`.nginx`](/home/alex/git/gadsdlc/.nginx).
 
@@ -127,9 +126,9 @@ cd .nginx
 
 | Приложение | Client ID | Client Secret | Redirect URI |
 |------------|-----------|---------------|--------------|
-| `GitLab` | `gitlab-oidc` | `OIDC_SHARED_CLIENT_SECRET` | `GITLAB_URL/users/auth/openid_connect/callback` |
-| `Outline` | `outline-oidc` | `OIDC_SHARED_CLIENT_SECRET` | `OUTLINE_URL/auth/oidc.callback` |
-| `Kaneo` | `kaneo-oidc` | `OIDC_SHARED_CLIENT_SECRET` | `KANEO_URL/api/auth/oauth2/callback/custom` |
-| `Homarr` | `homarr-oidc` | `OIDC_SHARED_CLIENT_SECRET` | `HOMARR_URL/api/auth/callback/oidc` |
+| `GitLab` | `gitlab-oidc` | `GITLAB_OMNIAUTH_CLIENT_SECRET` | `GITLAB_URL/users/auth/openid_connect/callback` |
+| `Outline` | `outline-oidc` | `OUTLINE_OIDC_CLIENT_SECRET` | `OUTLINE_URL/auth/oidc.callback` |
+| `Kaneo` | `kaneo-oidc` | `KANEO_OIDC_CLIENT_SECRET` | `KANEO_URL/api/auth/oauth2/callback/custom` |
+| `Homarr` | `homarr-oidc` | `HOMARR_OIDC_CLIENT_SECRET` | `HOMARR_URL/api/auth/callback/oidc` |
 | `Seafile` | `seafile-oidc` | `SEAFILE_OIDC_CLIENT_SECRET` | `SEAFILE_URL/oauth/callback/` |
-| `Zerobyte` | `zerobyte-oidc` | `ZEROBYTE_OIDC_CLIENT_SECRET` | взять callback URL из UI Zerobyte |
+| `Zerobyte` | настроить в UI | настроить в UI | взять callback URL из UI Zerobyte |

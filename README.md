@@ -84,8 +84,8 @@ cd .nginx
 
 | Что делают | Детали |
 |------------|--------|
-| HTTP -> HTTPS redirect | `listen 80` с `return 301` |
-| TLS | сертификаты, `ssl` и `http2` подключаются отдельно |
+| HTTP proxy | только HTTP upstream без TLS-логики |
+| TLS | настраивается отдельно вне этих файлов |
 | Proxy headers | пробрасывают `Host`, `X-Forwarded-*`, `Upgrade` |
 
 ## GitLab
@@ -110,7 +110,6 @@ cd .nginx
 | `seafile` | HTTP upstream для nginx | `50080` | `127.0.0.1` | `80` |
 | `zerobyte` | HTTP upstream для nginx | `54096` | `127.0.0.1` | `4096` |
 | `nginx` | HTTP public | `80` | `0.0.0.0` | `80` |
-| `nginx` | HTTPS public | `443` | `0.0.0.0` | `443` |
 
 ## OIDC
 
